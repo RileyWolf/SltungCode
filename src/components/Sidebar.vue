@@ -208,7 +208,7 @@ export default {
   width: 134px;
   height: 60px;
   margin-left: 60px;
-  margin-top: -75.5px;
+  margin-top: -76px;
   background: #4481ff;
 }
 .but-base-s .child p{
@@ -221,6 +221,7 @@ export default {
   display:block;
 } 
 .but-base-s:hover {
+  z-index:100;
   background: #4481ff;
 }
 .new-but-base-s .child{

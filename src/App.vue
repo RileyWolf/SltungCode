@@ -1,6 +1,8 @@
 <template>
   <div>
-    <Sidebar/>
+    <Sidebar  style="float:left; position: relative;" />
+    <div id="div1"/>
+    <div id="div2"/>
   </div>
 </template>
 
@@ -16,12 +18,16 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+#div1 {
+  width: 270px;
+  height: 1025px;
+  background: #202A39;
+  float:left;
+}
+#div2 {
+  width: 1275px;
+  height: 1025px;
+  background: #FFFFFF;
+  float:left;
 }
 </style>
