@@ -1,33 +1,22 @@
 <template>
   <div>
-    <Sidebar  style="float:left; position: relative;" />
-    <!-- <div id="div1"/>
-    <div id="div2"/> -->
+    <Header/>
+    <Sidebar/>
   </div>
 </template>
 
 <script>
 import Sidebar from './components/Sidebar.vue'
+import Header from './components/Header.vue'
 
 export default {
   name: 'App',
   components: {
-    Sidebar
+    Sidebar,
+    Header
   }
 }
 </script>
 
 <style>
-#div1 {
-  width: 270px;
-  height: 1025px;
-  background: #202A39;
-  float:left;
-}
-#div2 {
-  width: 650px;
-  height: 1025px;
-  background: #3b72b1;
-  float:left;
-}
 </style>
