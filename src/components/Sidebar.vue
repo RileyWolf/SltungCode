@@ -204,6 +204,8 @@ export default {
   cursor: pointer;
 }
 .but-base-s .child {
+  z-index : 999;
+  position: relative;
   display:none;
   width: 134px;
   height: 60px;
@@ -221,7 +223,6 @@ export default {
   display:block;
 } 
 .but-base-s:hover {
-  z-index:100;
   background: #4481ff;
 }
 .new-but-base-s .child{
