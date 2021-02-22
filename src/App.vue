@@ -1,8 +1,8 @@
 <template>
   <div>
     <Sidebar  style="float:left; position: relative;" />
-    <div id="div1"/>
-    <div id="div2"/>
+    <!-- <div id="div1"/>
+    <div id="div2"/> -->
   </div>
 </template>
 
@@ -25,9 +25,9 @@ export default {
   float:left;
 }
 #div2 {
-  width: 1275px;
+  width: 650px;
   height: 1025px;
-  background: #FFFFFF;
+  background: #3b72b1;
   float:left;
 }
 </style>
