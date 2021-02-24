@@ -1,4 +1,4 @@
-# my-project
+# labeling
 
 ## Project setup
 ```

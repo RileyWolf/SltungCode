@@ -2,7 +2,7 @@
   <div>
     <div class="tabbase">
       <div class="logo">
-        <img src= "../assets/Logo.png" />
+        <img src= "../assets//icons/headerLogo.svg" />
       </div>
       <div class="hoverState">
           <div class="back">
@@ -25,7 +25,7 @@ export default {
   },
   methods: {},
 };
-</script> 
+</script>
 <style scoped>
 .tabbase {
   width: 1920px;
@@ -46,7 +46,7 @@ export default {
     left: 246px;
     position: relative;
 }
-.hoverState:hover{ 
+.hoverState:hover{
     width: 90px;
     height: 55px;
     left: 246px;
@@ -54,14 +54,14 @@ export default {
     background-color:#466086;
     cursor: pointer;
 }
-.hoverState:hover p{ 
+.hoverState:hover p{
     color: #FFFFFF;
     font-family:Arial;
     position: absolute;
     margin:0px auto;
     margin-left: 16px;
 }
-.hoverState:hover .icon{ 
+.hoverState:hover .icon{
     width: 5.89px;
     height: 10.31px;
     margin:0px auto;

@@ -161,7 +161,7 @@ export default {
     },
   },
 };
-</script> 
+</script>
 <style scoped>
 .user_a {
   fill: #5b7bad;
@@ -211,7 +211,6 @@ export default {
   width: 194px;
   height: 60px;
   float: left;
-
   background-color: #4481ff;
   box-shadow: 3px 7px 5px -5px #081b2b80;
 }
