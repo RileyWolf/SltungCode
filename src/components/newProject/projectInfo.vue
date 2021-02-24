@@ -120,7 +120,7 @@ export default {
         alert("項目名已存在");
       } else if (this.project_name == "") {
         alert("尚未填寫項目名稱");
-      } else if (this.tagList == []) {
+      } else if (this.tagList.length == 0) {
         alert("尚未填寫標籤");
       } else if (this.project_description == "") {
         alert("尚未填寫內容");
