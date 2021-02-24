@@ -3,14 +3,16 @@
         <Header></Header>
         <div style="display: flex; flex-direction: row">
             <sidebar></sidebar>
-            <new-project></new-project>
+            <taskpop/>
+            <!-- <new-project></new-project> -->
         </div>
 
     </div>
 </template>
 
 <script>
-    import newProject from "./newProject";
+    // import newProject from "./newProject";
+    import taskpop from "./taskpop";
     import sidebar from "./sideBar";
     import Header from "./header";
 
@@ -19,7 +21,8 @@
         components: {
             Header,
             sidebar,
-            newProject
+            taskpop
+            // newProject
         }
     }
 </script>
