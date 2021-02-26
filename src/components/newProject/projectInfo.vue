@@ -62,13 +62,19 @@
     <div>
       <div class="save-btn" @click="doSave()">儲存</div>
     </div>
+    <el-button type="text" @click="openTask">點擊打開 影像管理平台</el-button>
+    <el-dialog  :visible.sync="opentask"  :append-to-body='true' :lock-scroll="false" width="960px">
+      <taskpop ></taskpop>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import marked from "marked";
+import taskpop from "./taskpop";
 import { saveNewProject } from "../../api/index.js";
 import { checkProName } from "../../api/index.js";
+
 
 export default {
   name: "projectInfo.vue",
@@ -76,6 +82,9 @@ export default {
     compiledMarkdown: function () {
       return marked(this.input, { sanitize: true });
     },
+  },
+  components: {
+    taskpop
   },
   data() {
     return {
@@ -87,9 +96,13 @@ export default {
       project_name: "",
       error: "",
       error_message: "",
+      opentask : false
     };
   },
   methods: {
+    openTask(){
+      this.opentask = true;
+    },
     async change() {
       if (this.project_name == "") {
         this.error = "";
