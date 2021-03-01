@@ -18,12 +18,12 @@
           </el-col>
         </el-row>
         <el-row type="flex">
-            <div class="leftbtn-div left-bg-purple" @click="selectuserdata">
+            <div class="leftbtn-div left-bg-purple"  @click="alluserdata_all">
               <font-awesome-icon :icon="['fas', 'chevron-right']" class="icon-toright" />
               <font-awesome-icon :icon="['fas', 'chevron-right']" class="icon-toright" style="left: 125.21px" />
             </div>
-            <div class="rightbtn-div left-bg-purple">
-              <div class="select-quantity">{{allamount}}</div>
+            <div class="rightbtn-div left-bg-purple" @click="alluserdata">
+              <div class="select-quantity">{{this.all_selectbox.length}}</div>
               <font-awesome-icon
                 :icon="['fas', 'chevron-right']"
                 class="icon-toright"
@@ -33,10 +33,20 @@
         </el-row>
         <el-table ref="multipleTable" height="610" class="leftlist-div" :data="all_userData" tooltip-effect="dark"
           content="width=device-width, initial-scale=1"
-          @selection-change="handleSelectionChange" >
+          @selection-change="leftChange" >
           <el-table-column type="selection" width="50"></el-table-column>
           <el-table-column prop="account" label="帳號" width="140" sortable ></el-table-column>
-          <el-table-column prop="username" label="姓名" width="90" sortable ></el-table-column>
+          <el-table-column prop="username" label="姓名" width="90" sortable >
+            <template slot-scope="scope">
+              <el-popover trigger="hover" placement="right">
+                備註品質
+                <el-rate v-model="scope.row.rate" disabled score-template="{scope.row.rate}"></el-rate>
+                <div slot="reference">
+                {{ scope.row.username }}
+                </div>
+              </el-popover>
+            </template>
+          </el-table-column>
           <el-table-column  prop="systemauthority" label="系統權限" width="85" ></el-table-column>
           <el-table-column prop="participate" label="參與專案" show-overflow-tooltip sortable ></el-table-column>
         </el-table>
@@ -44,19 +54,19 @@
       <el-col style="margin-left: 20px">
         <div class="title-div">已加入名單</div>
         <el-row type="flex">
-          <div class="leftbtn-div right-bg-purple" style="margin-top: 66px">
+          <div class="leftbtn-div right-bg-purple" style="margin-top: 66px" @click="selectuserdata()">
             <font-awesome-icon :icon="['fas', 'chevron-left']" class="icon-toleft" />
-            <div class="select-quantity" style="left: 50px">{{selectamount}}</div>
+            <div class="select-quantity" style="left: 50px">{{this.individual_selectbox.length}}</div>
           </div>
-          <div class="rightbtn-div right-bg-purple" style="margin-top: 66px">
+          <div class="rightbtn-div right-bg-purple" style="margin-top: 66px" @click="selectuserdata_all()">
             <font-awesome-icon :icon="['fas', 'chevron-left']" class="icon-toleft" style="left: 90.79px" />
             <font-awesome-icon :icon="['fas', 'chevron-left']" class="icon-toleft" style="left: 96.79px" />
           </div>
         </el-row>
-        <el-table ref="multipleTable" height="610" class="rightlist-div" :data="individual_userData" tooltip-effect="dark"
+        <el-table ref="multipleTable2" height="610" class="rightlist-div" :data="individual_userData" tooltip-effect="dark"
           content="width=device-width, initial-scale=1"
-          @selection-change="handleSelectionChange" >
-          <el-table-column type="selection" width="50" :cell-style="{padding: '0', height: '20px'}"></el-table-column>
+          @selection-change="rightChange" >
+          <el-table-column type="selection" width="50"></el-table-column>
           <el-table-column prop="username" label="姓名" width="90" ></el-table-column>
           <el-table-column width="20"><el-divider direction="vertical"></el-divider></el-table-column>
           <el-table-column label="本專案權限設定" >
@@ -76,17 +86,20 @@ export default {
   name: "taskpop.vue",
   data() {
     return {
+      value1: null,
+      value2: null,
+      colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
       components: {},
       all_userData: [
-        { id:1,account: "loodaminne@mail.com",username: "John John Willam",systemauthority: "Admin",participate: "100",remarks: true,confirm: false },
-        { id:2,account: "Wangshouminne@mail.com",username: "王曉明",systemauthority: "User",participate: "10",remarks: true,confirm: false },
-        { id:3,account: "Mootingting@mail.com",username: "穆曉亭",systemauthority: "User",participate: "6",remarks: false,confirm: true },
-        { id:4,account: "examplemail@youemaha.com",username: "熊本大大",systemauthority: "User",participate: "30",remarks: true,confirm: false },
-        { id:5,account: "examplemail@youemaha.com",username: "熊本大大",systemauthority: "User",participate: "30",remarks: true,confirm: false },
-        { id:6,account: "examplemail@youemaha.com",username: "徐三石",systemauthority: "User",participate: "33",remarks: false,confirm: false },
-        { id:7,account: "examplemail@youemaha.com",username: "蘇美珠",systemauthority: "User",participate: "20",remarks: true,confirm: true },
-        { id:8,account: "examplemail@youemaha.com",username: "吳三桂",systemauthority: "User",participate: "21",remarks: true,confirm: false },
-        { id:9,account: "examplemail@youemaha.com",username: "唐舞靈",systemauthority: "User",participate: "11",remarks: true,confirm: false },
+        { id:1,account: "loodaminne@mail.com",username: "John John Willam",systemauthority: "Admin",participate: "100",remarks: true,confirm: false,rate:2  },
+        { id:2,account: "Wangshouminne@mail.com",username: "王曉明",systemauthority: "User",participate: "10",remarks: true,confirm: false,rate:5 },
+        { id:3,account: "Mootingting@mail.com",username: "穆曉亭",systemauthority: "User",participate: "6",remarks: false,confirm: true,rate:3 },
+        { id:4,account: "examplemail@youemaha.com",username: "熊本大大",systemauthority: "User",participate: "30",remarks: true,confirm: false,rate:2 },
+        { id:5,account: "examplemail@youemaha.com",username: "熊大大",systemauthority: "User",participate: "30",remarks: true,confirm: false,rate:4 },
+        { id:6,account: "examplemail@youemaha.com",username: "徐三石",systemauthority: "User",participate: "33",remarks: false,confirm: false,rate:2 },
+        { id:7,account: "examplemail@youemaha.com",username: "蘇美珠",systemauthority: "User",participate: "20",remarks: true,confirm: true,rate:1 },
+        { id:8,account: "examplemail@youemaha.com",username: "吳三桂",systemauthority: "User",participate: "21",remarks: true,confirm: false,rate:2 },
+        { id:9,account: "examplemail@youemaha.com",username: "唐舞靈",systemauthority: "User",participate: "11",remarks: true,confirm: false,rate:4 },
       ],
       individual_userData:[],
       projectlist: [
@@ -96,33 +109,33 @@ export default {
       ],
       all_selectbox: [],
       individual_selectbox:[],
-      value: "",
-      allamount:0,
-      selectamount:0
+      value: ""
     };
   },
   methods: {
+    alluserdata_all:function () {
+      this.individual_userData.push.apply(this.individual_userData,this.all_userData)
+      this.all_userData=[]
+    },
+    selectuserdata_all:function () {
+      this.all_userData.push.apply(this.all_userData,this.individual_userData)
+      this.individual_userData=[]
+    },
     selectuserdata:function () {
-
-          this.individual_userData.push.apply(this.individual_userData,this.all_selectbox)
-          //在返回push数据后剩余的待选列表所有数据赋值到resetData中，然后再在待选列表中显示检索删除被剩余的数据
-          this.all_userData = this.all_userData.splice(this.all_selectbox)
-            // this.resetData = this.filterBeforeData;
-          //删除左边被选中的数据,返回待选列表中被剩余的数据
-        //   this.tableData = this.overlap(this.tableData,this.single_userdat);
-          
-        },
-    toggleSelection(rows) {
-        if (rows) {
-          rows.forEach(row => {
-            this.$refs.multipleTable.toggleRowSelection(row);
-          });
-        } else {
+          this.all_userData.push.apply(this.all_userData,this.individual_selectbox)
+          this.individual_userData = this.individual_userData.filter(item => { return this.all_userData.every(data => data.id !== item.id) })
           this.$refs.multipleTable.clearSelection();
-        }
-      },
-    handleSelectionChange(val) {
-        this.all_selectbox = val;
+        },
+    alluserdata:function () {
+      this.individual_userData.push.apply(this.individual_userData,this.all_selectbox)
+      this.all_userData = this.all_userData.filter(item => { return this.individual_userData.every(data => data.id !== item.id) })
+      this.$refs.multipleTable2.clearSelection();
+    },
+    rightChange(val){
+      this.individual_selectbox = val;
+    },
+    leftChange(val) {
+      this.all_selectbox = val;
     },
   },
 };
