@@ -64,7 +64,7 @@
     </div>
     <el-button type="text" @click="openTask">點擊打開 影像管理平台</el-button>
     <el-dialog  :visible.sync="opentask"  :append-to-body='true' :lock-scroll="false" width="960px">
-      <taskpop ></taskpop>
+      <taskpop @update="selfUpdate"></taskpop>
     </el-dialog>
   </div>
 </template>
@@ -84,10 +84,11 @@ export default {
     },
   },
   components: {
-    taskpop
+    taskpop,
   },
   data() {
     return {
+      savauserlist:[],
       newTag: "",
       tagList: [],
       isview: false,
@@ -100,6 +101,11 @@ export default {
     };
   },
   methods: {
+    selfUpdate(val){
+      console.log("這裡是projectInfo")
+      this.savauserlist = val
+      console.log(this.savauserlist)
+    },
     openTask(){
       this.opentask = true;
     },
@@ -151,8 +157,10 @@ export default {
           this.error_message = "";
           this.error = "";
           alert("新增完成");
+          console.log(result)
         }
       }
+      
     },
   },
 };

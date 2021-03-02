@@ -11,8 +11,8 @@
                 <font-awesome-icon :icon="['fas', 'circle']" class="icon-circle" style="top: 25px" />
                 </div>
             <el-select v-model="value" placeholder="Dropdownlist(Project)" class="dropdownlist" >
-              <el-option v-for="(item, index) in projectlist" :key="item.key" :index="index" :value="item.proname">
-                <span style="float: left">{{ item.proname }}</span>
+              <el-option v-for="(item, index) in projectlist" :key="item.key" :index="index" :value="item">
+                <span style="float: left">{{ item.project_name }}</span>
               </el-option>
             </el-select>
           </el-col>
@@ -35,20 +35,20 @@
           content="width=device-width, initial-scale=1"
           @selection-change="leftChange" >
           <el-table-column type="selection" width="50"></el-table-column>
-          <el-table-column prop="account" label="帳號" width="140" sortable ></el-table-column>
-          <el-table-column prop="username" label="姓名" width="90" sortable >
+          <el-table-column prop="username" label="帳號" width="140" sortable ></el-table-column>
+          <el-table-column prop="fullname" label="姓名" width="90" sortable >
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="right">
                 備註品質
-                <el-rate v-model="scope.row.rate" disabled score-template="{scope.row.rate}"></el-rate>
+                <el-rate v-model="scope.row.ratings" disabled score-template="{scope.row.ratings}"></el-rate>
                 <div slot="reference">
-                {{ scope.row.username }}
+                {{ scope.row.fullname }}
                 </div>
               </el-popover>
             </template>
           </el-table-column>
-          <el-table-column  prop="systemauthority" label="系統權限" width="85" ></el-table-column>
-          <el-table-column prop="participate" label="參與專案" show-overflow-tooltip sortable ></el-table-column>
+          <el-table-column  prop="roles" label="系統權限" width="85" ></el-table-column>
+          <el-table-column prop="participate_in_projects" label="參與專案" show-overflow-tooltip sortable ></el-table-column>
         </el-table>
       </el-col>
       <el-col style="margin-left: 20px">
@@ -67,50 +67,54 @@
           content="width=device-width, initial-scale=1"
           @selection-change="rightChange" >
           <el-table-column type="selection" width="50"></el-table-column>
-          <el-table-column prop="username" label="姓名" width="90" ></el-table-column>
+          <el-table-column prop="fullname" label="姓名" width="90" ></el-table-column>
           <el-table-column width="20"><el-divider direction="vertical"></el-divider></el-table-column>
           <el-table-column label="本專案權限設定" >
             <template slot-scope="scope">
-                <el-switch  v-model="scope.row.remarks" active-color="#84CD36" active-text="標註" ></el-switch>
-                <el-switch  v-model="scope.row.confirm" active-color="#84CD36" active-text="確認" ></el-switch>
+              <el-switch  v-model="scope.row.labeler" active-color="#84CD36" active-text="標註" ></el-switch>
+              <el-switch  v-model="scope.row.confirmer" active-color="#84CD36" active-text="確認" ></el-switch>
             </template>
           </el-table-column>
         </el-table>
-        <el-button type="primary" class="savetbn">儲存</el-button>
+        <el-button type="primary" class="savetbn" @click="sava()">確認</el-button>
       </el-col>
     </el-row>
   </div>
 </template>
 <script>
+import { getUserlist } from "../../api/index.js";
+import { getUserPromembers } from "../../api/index.js"
+import { getProjectlist } from "../../api/index.js"
 export default {
   name: "taskpop.vue",
   data() {
     return {
-      value1: null,
-      value2: null,
+      labeler:false,
+      confirmer:false,
       colors: ['#99A9BF', '#F7BA2A', '#FF9900'],
-      components: {},
-      all_userData: [
-        { id:1,account: "loodaminne@mail.com",username: "John John Willam",systemauthority: "Admin",participate: "100",remarks: true,confirm: false,rate:2  },
-        { id:2,account: "Wangshouminne@mail.com",username: "王曉明",systemauthority: "User",participate: "10",remarks: true,confirm: false,rate:5 },
-        { id:3,account: "Mootingting@mail.com",username: "穆曉亭",systemauthority: "User",participate: "6",remarks: false,confirm: true,rate:3 },
-        { id:4,account: "examplemail@youemaha.com",username: "熊本大大",systemauthority: "User",participate: "30",remarks: true,confirm: false,rate:2 },
-        { id:5,account: "examplemail@youemaha.com",username: "熊大大",systemauthority: "User",participate: "30",remarks: true,confirm: false,rate:4 },
-        { id:6,account: "examplemail@youemaha.com",username: "徐三石",systemauthority: "User",participate: "33",remarks: false,confirm: false,rate:2 },
-        { id:7,account: "examplemail@youemaha.com",username: "蘇美珠",systemauthority: "User",participate: "20",remarks: true,confirm: true,rate:1 },
-        { id:8,account: "examplemail@youemaha.com",username: "吳三桂",systemauthority: "User",participate: "21",remarks: true,confirm: false,rate:2 },
-        { id:9,account: "examplemail@youemaha.com",username: "唐舞靈",systemauthority: "User",participate: "11",remarks: true,confirm: false,rate:4 },
-      ],
-      individual_userData:[],
-      projectlist: [
-        { id:1,proname: "1",},
-        { id:2,proname: "2",},
-        { id:3,proname: "3",},
-      ],
-      all_selectbox: [],
-      individual_selectbox:[],
-      value: ""
+      all_userData: [], //全部顯示
+      individual_userData:[], //已選擇
+      project_permission:[], //儲存專案人員權限list
+      project_userData:[], //初始使用者list
+      projectlist: [], //專案list
+      all_selectbox: [], //左邊選擇時
+      individual_selectbox:[], //右邊選擇時
+      sava_userlist:[], //回傳用list
+      value: [],
+      
     };
+  },
+  watch: {
+    value() {
+        this.getUserPromember()
+    },
+    labeler(){
+        this.savalabeler()
+    }
+  },
+  created:function () {
+    this.getuserlist()
+    this.getProjectlist()
   },
   methods: {
     alluserdata_all:function () {
@@ -118,17 +122,27 @@ export default {
       this.all_userData=[]
     },
     selectuserdata_all:function () {
-      this.all_userData.push.apply(this.all_userData,this.individual_userData)
+      if(this.value == []){
+          this.all_userData.push.apply(this.all_userData,this.individual_selectbox)
+      }
       this.individual_userData=[]
     },
     selectuserdata:function () {
+      if(this.value == []){
           this.all_userData.push.apply(this.all_userData,this.individual_selectbox)
-          this.individual_userData = this.individual_userData.filter(item => { return this.all_userData.every(data => data.id !== item.id) })
-          this.$refs.multipleTable.clearSelection();
-        },
+      }
+        this.individual_userData = this.individual_userData.filter(item => { return this.all_userData.every(data => data.id !== item.id) })
+        this.$refs.multipleTable.clearSelection();
+      },
     alluserdata:function () {
+      this.individual_userData = this.individual_userData.filter(item => { return this.all_selectbox.every(data => data.id !== item.id) })
       this.individual_userData.push.apply(this.individual_userData,this.all_selectbox)
-      this.all_userData = this.all_userData.filter(item => { return this.individual_userData.every(data => data.id !== item.id) })
+      if(this.value == []){
+        this.all_userData = this.all_userData.filter(item => { return this.individual_userData.every(data => data.id !== item.id) })
+      }else{
+        this.all_selectbox = []
+      }
+      this.$refs.multipleTable.clearSelection();
       this.$refs.multipleTable2.clearSelection();
     },
     rightChange(val){
@@ -137,8 +151,68 @@ export default {
     leftChange(val) {
       this.all_selectbox = val;
     },
-  },
-};
+    async getProjectlist() {
+      let result = await getProjectlist();
+      if (result) {
+        this.projectlist=result.data
+      }
+      // this.projectlist.push({ 
+      //     "project_name" : "全部資料" ,
+      //     "project_id" : 'allid'
+      // })
+    },
+    async getuserlist() {
+      let result = await getUserlist();
+      if (result) {
+        this.all_userData = result.data
+        this.project_userData = result.data
+      }
+    },
+    async getUserPromember() {
+      this.all_userData = this.project_userData
+      let getObj = {
+          project_id: this.value.project_id,
+        };
+      let result = await getUserPromembers(getObj);
+      console.log(result)
+      if (result) {
+        this.all_userData = this.all_userData.filter(item => { return !(result.user_list.every(data => data.user_id !== item.id)) })
+        // result.user_list.forEach(element => {
+        //   this.project_permission.push({ 
+        //     "confirmer" : (element.permission[0] == "confirmer"), 
+        //     "labeler" : (element.permission[0] == "labeler"),
+        //     "user_id" : element.user_id,
+            
+        //     "fullname": (this.all_userData.filter(function(item) {
+        //       return item.id == element.user_id
+        //     }))[0].fullname
+        //     })
+        // })
+        // console.log(this.project_permission)
+      }
+    },
+    sava(){
+      this.sava_userlist = []
+      this.individual_userData.forEach(element => {
+        this.sava_userlist.push({ 
+          "user_list" : [
+            this.switch(element)
+          ],
+          "user_id" : element.id,
+          })
+      })
+      this.$emit('update', this.sava_userlist)
+    },
+    switch(val){
+      if(val.confirmer == true){
+        return 'confirmer'
+      }
+      if(val.labeler == true){
+        return 'labeler'
+      }
+    }
+  }
+}
 </script>
 <style scoped>
 .el-table >>> .el-table__body-wrapper::-webkit-scrollbar {

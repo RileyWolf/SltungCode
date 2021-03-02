@@ -9,7 +9,7 @@ axios.defaults.baseURL = url
 
 axios.interceptors.request.use(
   config => {
-    const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTM5ODY0MDUsImV4cCI6MTYxNDI0NTYwNSwianRpIjoiZDExNGQ5ZmEtMjQzNS00NzQyLWFmYzctYWY1MmVjODA0NTU3IiwiaWQiOjEsInJscyI6IkFkbWluaXN0cmF0b3IiLCJyZl9leHAiOjE2MTQyNDU2MDV9.im9QTEnL4hhQGNT1PT02krjZdJU1GBJeY4SS-7GSsr8'
+    const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2MTQxMzE3NjYsImV4cCI6MTY0NTY2Nzc2NiwianRpIjoiMWUwZTI4ODUtNDhmYi00Nzk4LWE2YzYtMWViNWM3OGJmZmMzIiwiaWQiOjEsInJscyI6IkFkbWluaXN0cmF0b3IiLCJyZl9leHAiOjE2NDU2Njc3NjZ9.IQqsdIYr74MKCbXalAzXfCwdFz4xFJtJojtYCDWhYyM'
     if(token){
       config.headers
     }
@@ -73,6 +73,25 @@ export function post(url, paramObj) {
     );
   });
 }
+export function get(url, paramObj) {
+  return new Promise((resolve) => {
+    axios.get(url, paramObj).then(
+      response => {
+          resolve(response.data);
+      },
+      err => {
+        resolve(err.response.data);
+        // resolve(err.response.request.response);
+      }
+    );
+  });
+}
+
+export const getProjectlist = paramObj => get('/get-project-list', paramObj)
+export const getUserlist = paramObj => get('/get-user-list', paramObj)
+export const addPromembers = paramObj => post('/add-project-members', paramObj)
+export const getUserPromembers = paramObj => post('/get-project-members', paramObj)
+
 
 export const loginUser = paramObj => post('/login', paramObj)
 
