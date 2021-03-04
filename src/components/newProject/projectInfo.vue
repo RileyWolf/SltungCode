@@ -74,7 +74,7 @@ import marked from "marked";
 import taskpop from "./taskpop";
 import { saveNewProject } from "../../api/index.js";
 import { checkProName } from "../../api/index.js";
-
+import { addPromembers } from "../../api/index.js";
 
 export default {
   name: "projectInfo.vue",
@@ -97,7 +97,8 @@ export default {
       project_name: "",
       error: "",
       error_message: "",
-      opentask : false
+      opentask : false,
+      pro_id : ''
     };
   },
   methods: {
@@ -105,6 +106,7 @@ export default {
       console.log("這裡是projectInfo")
       this.savauserlist = val
       console.log(this.savauserlist)
+      this.opentask = false;
     },
     openTask(){
       this.opentask = true;
@@ -134,6 +136,16 @@ export default {
     removeTag(index) {
       this.tagList.splice(index, 1);
     },
+    async savaUser(){
+      let savaObj = {
+        members_info_list:this.savauserlist,
+        project_id: this.pro_id
+      }
+      let result = await addPromembers(savaObj);
+      if(result){
+        console.log(result)
+      }
+    },
     async doSave() {
       if (this.error == "ProjectExists") {
         alert("項目名已存在");
@@ -145,12 +157,13 @@ export default {
         alert("尚未填寫內容");
       } else {
         let saveObj = {
-          keywords: this.tagList,
+          tags  : this.tagList,
           project_description: this.project_description,
           project_name: this.project_name,
         };
         let result = await saveNewProject(saveObj);
         if (result) {
+          this.pro_id = result.project_id
           this.tagList = "",
           this.project_description = "",
           this.project_name = "";
@@ -158,6 +171,7 @@ export default {
           this.error = "";
           alert("新增完成");
           console.log(result)
+          this.savaUser()
         }
       }
       

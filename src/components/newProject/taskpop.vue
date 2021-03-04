@@ -10,9 +10,8 @@
                 <font-awesome-icon :icon="['fas', 'circle']" class="icon-circle" style="top: 17px"/>
                 <font-awesome-icon :icon="['fas', 'circle']" class="icon-circle" style="top: 25px" />
                 </div>
-            <el-select v-model="value" placeholder="Dropdownlist(Project)" class="dropdownlist" >
-              <el-option v-for="(item, index) in projectlist" :key="item.key" :index="index" :value="item">
-                <span style="float: left">{{ item.project_name }}</span>
+            <el-select v-model="selectedProject" placeholder="Dropdownlist(Project)" clearable class="dropdownlist" >
+              <el-option v-for="item in projectlist" :key="item.project_id" :label="item.project_name" :value="item.project_id">
               </el-option>
             </el-select>
           </el-col>
@@ -34,7 +33,7 @@
         <el-table ref="multipleTable" height="610" class="leftlist-div" :data="all_userData" tooltip-effect="dark"
           content="width=device-width, initial-scale=1"
           @selection-change="leftChange" >
-          <el-table-column type="selection" width="50"></el-table-column>
+          <el-table-column type="selection" width="50" :selectable="changeo_r_nochange"></el-table-column>
           <el-table-column prop="username" label="帳號" width="140" sortable ></el-table-column>
           <el-table-column prop="fullname" label="姓名" width="90" sortable >
             <template slot-scope="scope">
@@ -100,13 +99,13 @@ export default {
       all_selectbox: [], //左邊選擇時
       individual_selectbox:[], //右邊選擇時
       sava_userlist:[], //回傳用list
-      value: [],
+      selectedProject: '',
       
     };
   },
   watch: {
-    value() {
-        this.getUserPromember()
+    selectedProject(){
+      this.getUserPromember()
     },
     labeler(){
         this.savalabeler()
@@ -118,32 +117,43 @@ export default {
   },
   methods: {
     alluserdata_all:function () {
-      this.individual_userData.push.apply(this.individual_userData,this.all_userData)
-      this.all_userData=[]
+      this.all_selectbox = this.all_userData
+      this.all_selectbox = this.all_selectbox.filter(item => { return this.individual_userData.every(data => data.user_id !== item.user_id) })
+      this.individual_userData.push.apply(this.individual_userData,this.all_selectbox)
+      this.clears()
     },
     selectuserdata_all:function () {
-      if(this.value == []){
-          this.all_userData.push.apply(this.all_userData,this.individual_selectbox)
-      }
       this.individual_userData=[]
+      this.clears()
     },
     selectuserdata:function () {
-      if(this.value == []){
-          this.all_userData.push.apply(this.all_userData,this.individual_selectbox)
-      }
-        this.individual_userData = this.individual_userData.filter(item => { return this.all_userData.every(data => data.id !== item.id) })
-        this.$refs.multipleTable.clearSelection();
-      },
-    alluserdata:function () {
-      this.individual_userData = this.individual_userData.filter(item => { return this.all_selectbox.every(data => data.id !== item.id) })
-      this.individual_userData.push.apply(this.individual_userData,this.all_selectbox)
-      if(this.value == []){
-        this.all_userData = this.all_userData.filter(item => { return this.individual_userData.every(data => data.id !== item.id) })
+      this.individual_userData = this.individual_userData.filter(item => { return this.individual_selectbox.every(data => data.user_id !== item.user_id) })
+      this.clears()
+    },
+    changeo_r_nochange:function(row){
+      if(this.individual_userData){
+        if( this.individual_userData.length> 0){
+          let item = this.individual_userData.findIndex(e => e.user_id == row.user_id )
+          if(item != -1){
+            return false
+          }else{
+            return true
+          }
+        }else{
+          return true
+        }
       }else{
-        this.all_selectbox = []
-      }
+          return true
+        }
+    } ,
+    clears:function(){
       this.$refs.multipleTable.clearSelection();
       this.$refs.multipleTable2.clearSelection();
+    },
+    alluserdata:function () {
+      this.individual_userData.push.apply(this.individual_userData,this.all_selectbox) //--push進右邊
+      this.all_selectbox = []
+      this.clears()
     },
     rightChange(val){
       this.individual_selectbox = val;
@@ -156,10 +166,6 @@ export default {
       if (result) {
         this.projectlist=result.data
       }
-      // this.projectlist.push({ 
-      //     "project_name" : "全部資料" ,
-      //     "project_id" : 'allid'
-      // })
     },
     async getuserlist() {
       let result = await getUserlist();
@@ -170,13 +176,13 @@ export default {
     },
     async getUserPromember() {
       this.all_userData = this.project_userData
+      if(this.selectedProject != ""){
       let getObj = {
-          project_id: this.value.project_id,
+          project_id: this.selectedProject,
         };
       let result = await getUserPromembers(getObj);
-      console.log(result)
       if (result) {
-        this.all_userData = this.all_userData.filter(item => { return !(result.user_list.every(data => data.user_id !== item.id)) })
+        this.all_userData = this.all_userData.filter(item => { return !( result.user_list.every(data => data.user_id !== item.user_id)) })
         // result.user_list.forEach(element => {
         //   this.project_permission.push({ 
         //     "confirmer" : (element.permission[0] == "confirmer"), 
@@ -190,26 +196,42 @@ export default {
         // })
         // console.log(this.project_permission)
       }
+      }
     },
     sava(){
-      this.sava_userlist = []
-      this.individual_userData.forEach(element => {
-        this.sava_userlist.push({ 
-          "user_list" : [
-            this.switch(element)
-          ],
-          "user_id" : element.id,
-          })
+       this.sava_userlist = []
+       let l
+       this.individual_userData.forEach(element => {
+           l = this.switch(element)
+           this.sava_userlist.push({ 
+             "permission" : this.switch(element),
+             "user_id" : element.user_id,
+           })
       })
-      this.$emit('update', this.sava_userlist)
+      if(l){
+        this.$emit('update', this.sava_userlist)
+      }else{
+          this.$message({
+            showClose: true,
+            message: '至少選擇一項標註確認',
+            type: 'error'
+          });
+      }
     },
     switch(val){
-      if(val.confirmer == true){
-        return 'confirmer'
+      let l = []
+      if(val.confirmer || val.labeler){
+        if(val.labeler == true){
+          l.push('labeler')
+        }
+        if(val.confirmer == true){
+          l.push('confirmer')
+        }
+        return l
+      }else{
+        return false
       }
-      if(val.labeler == true){
-        return 'labeler'
-      }
+      
     }
   }
 }
