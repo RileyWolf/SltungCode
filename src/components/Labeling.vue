@@ -365,11 +365,11 @@ export default {
   padding-bottom: 0px;
   background: #233044;
 }
+
 .container-labeling {
   height: 100%;
   display: flex;
 }
-
 .labeling-toolbar {
   width: 100%;
   height: 54px;
@@ -377,7 +377,6 @@ export default {
   display: flex;
   justify-content: space-between;
 }
-
 .wrap-content {
   width: 1299px;
 }
@@ -386,14 +385,12 @@ export default {
   display: flex;
   align-items: center;
 }
-
 .labeling-sidebar {
   width: 336px;
   background: #233044;
   height: 1080px;
   overflow-y: auto;
 }
-
 .toolbar,
 .wrap-btn,
 .layout,
