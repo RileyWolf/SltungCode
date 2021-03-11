@@ -304,11 +304,4 @@ export default {
   top: 147px;
   left: 20px;
 }
-.scope {
-  width: 195px;
-  height: 29px;
-  position: absolute;
-  top: 195px;
-  left: 126px;
-}
 </style>
