@@ -3,6 +3,7 @@ import Vue from "vue"
 import createPersistedState from "vuex-persistedstate"
 
 Vue.use(Vuex)
+  
 
 const loginInfo = JSON.parse(window.localStorage.getItem('loginInfo'));
 

@@ -8,8 +8,8 @@
             <div class="new-project-btn">
                 <svg xmlns="http://www.w3.org/2000/svg" width="11.015" height="11.015" viewBox="0 0 11.015 11.015" >
                     <g transform="translate(-6.6 -6.6)">
-                        <path class="a" d="M18,7.5v9.215" transform="translate(-5.893 0)" />
-                        <path class="a" d="M7.5,18h9.215" transform="translate(0 -5.893)" />
+                        <path class="new-project-btn-a" d="M18,7.5v9.215" transform="translate(-5.893 0)" />
+                        <path class="new-project-btn-a" d="M7.5,18h9.215" transform="translate(0 -5.893)" />
                     </g>
                 </svg>
                 新增專案
@@ -30,20 +30,20 @@
         <div class="project-list-div">
         <template>
             <el-table ref="projectData" :data="projectData" style="width: 100%" >
-                <el-table-column prop="projectname" label="專案名稱" sortable >
+                <el-table-column prop="project_name" label="專案名稱" sortable >
                     <template slot="header">
                         專案名稱
                         <el-select v-model="projectname_scope" class="filter-div" clearable placeholder="Filter" style="width: 195px; height: 29px;" >
                             <el-option
                                 v-for="item in allprojectData"
-                                :key="item.projectname"
-                                :label="item.projectname"
-                                :value="item.projectname"
+                                :key="item.project_name"
+                                :label="item.project_name"
+                                :value="item.project_name"
                             />
                         </el-select>
                     </template>
                 </el-table-column>
-                <el-table-column prop="date" label="日期" sortable column-key="date" >
+                <el-table-column prop="modified_datetime" label="日期" sortable column-key="date" >
                     <template slot="header" >
                         日期
                         <el-date-picker
@@ -80,7 +80,8 @@
 // import newProject from "./newProject";
 import Header from "@/components/header.vue";
 import sideBar from "@/components/sideBar.vue";
-
+import {getProjectList} from '../api/index.js';
+import moment from 'moment'
 export default {
   name: "projectManagement.vue",
   components: {
@@ -90,47 +91,29 @@ export default {
   computed: {},
   data() {
     return {
+      formatdate:new Date(),
       projectname_scope: "",
       projectData: [
-        {
-          id: 1,
-          projectname: "CXR CVP1",
-          date: "2020/08/10",
-          amount: "99999",
-          completed: "99999",
-          personnel: "2",
-          schedule: 13,
-        },
-        {
-          id: 2,
-          projectname: "CXR CVP CXR CVP 2",
-          date: "2021/08/10",
-          amount: "99999",
-          completed: "99999",
-          personnel: "2",
-          schedule: 13,
-        },
+        // {
+        //   id: 1,
+        //   project_name: "CXR CVP1",
+        //   date: "2020/08/10",
+        //   amount: "99999",
+        //   completed: "99999",
+        //   personnel: "2",
+        //   schedule: 13,
+        // },
+        // {
+        //   id: 2,
+        //   project_name: "CXR CVP CXR CVP 2",
+        //   date: "2021/08/10",
+        //   amount: "99999",
+        //   completed: "99999",
+        //   personnel: "2",
+        //   schedule: 13,
+        // },
       ],
-      allprojectData: [
-        {
-          id: 1,
-          projectname: "CXR CVP1",
-          date: "2020/08/10",
-          amount: "99999",
-          completed: "99999",
-          personnel: "2",
-          schedule: 13,
-        },
-        {
-          id: 2,
-          projectname: "CXR CVP CXR CVP 2",
-          date: "2021/08/10",
-          amount: "99999",
-          completed: "99999",
-          personnel: "2",
-          schedule: 13,
-        },
-      ],
+      allprojectData: [],
       customColor: "#DEE2E6",
       search: "",
       scope: "",
@@ -145,15 +128,15 @@ export default {
         this.projectData = this.allprojectData;
         if(this.search != ''){
             this.projectData = this.projectData.filter(
-                (data) => !this.search || data.projectname.toLowerCase().includes(this.search.toLowerCase()) 
+                (data) => !this.search || data.project_name.toLowerCase().includes(this.search.toLowerCase()) 
             )
         }
     },
     dataRange() {
       if (this.dataRange != null) {
         this.projectData = this.projectData.filter(
-          (data) => Date.parse(data.date).valueOf() >= Date.parse(this.dataRange[0]).valueOf() &&
-                    Date.parse(data.date).valueOf() <= Date.parse(this.dataRange[1]).valueOf()
+          (data) => Date.parse(data.modified_datetime).valueOf() >= Date.parse(this.dataRange[0]).valueOf() &&
+                    Date.parse(data.modified_datetime).valueOf() <= Date.parse(this.dataRange[1]).valueOf()
         );
       } else {
         this.projectData = this.allprojectData;
@@ -163,19 +146,44 @@ export default {
       this.projectData = this.allprojectData;
       if (this.projectname_scope != "") {
         this.projectData = this.projectData.filter(
-          (data) => data.projectname == this.projectname_scope
+          (data) => data.project_name == this.projectname_scope
         );
       }
     },
   },
-  methods: {
+  mounted() {
+    // var moment = require('moment');
+    // console.log(moment(new Date).format('YYYY-MM-DD, HH:mm:ss'))
+    this.getProjectList()
   },
+  methods: {
+    async getProjectList() {
+      let result = await getProjectList()
+      if (result) {
+        console.log(result.data)
+        this.allprojectData = result.data
+        this.formatProjectList()
+      }
+    },
+    formatProjectList() {
+      this.allprojectData.forEach(element => {
+        this.projectData.push({
+          "modified_datetime":moment(element.modified_datetime).format('YYYY/MM/DD'), //修改時間
+          "project_name":element.project_name
+        })
+      });
+      this.allprojectData = this.projectData
+    },
+  } 
 };
 </script>
 
 <style scoped>
 .el-table >>> .cell{
     padding-left: 7px;
+    font-size: 16px;
+    font: normal normal normal 16px/25px Arial;
+    color: #233044;
 }
 .el-select >>> .el-input__inner {
   width: 195px;
@@ -215,7 +223,7 @@ export default {
   border-top-left-radius: 0px;
   border-bottom-left-radius: 0px;
 }
-.a {
+.new-project-btn-a {
   fill: none;
   stroke: #fff;
   stroke-linecap: round;
@@ -248,8 +256,8 @@ export default {
 .project-management-subtitle {
   color: #233044;
   font-size: 20px;
-  top: 79px;
-  left: 90px;
+  top: 20px;
+  left: 45px;
   position: absolute;
   font-weight: bold;
 }
@@ -300,6 +308,7 @@ export default {
   height: 856px;
   background-color: #ffffff;
   border-radius: 5px;
+  padding: 0px 40px;
   position: relative;
   top: 147px;
   left: 20px;

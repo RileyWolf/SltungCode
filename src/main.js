@@ -22,6 +22,7 @@ Vue.use(Icon);
 Vue.use(Input);
 Vue.use(DatePicker);
 
+
 new Vue({
   render: h => h(App),
   router,
