@@ -1,14 +1,22 @@
 <template>
     <div>
-        <el-switch
-        v-model="label"
-        active-text="輸入框">
-        </el-switch>
-        <div id="drawbox-div">
+        <el-radio-group v-model="radio">
+            <el-radio :label="0">我是滑鼠</el-radio>
+            <el-radio :label="1" :disabled="disabled">標註框
+                <el-select v-model="value" clearable  placeholder="請選擇" v-show="radio==1">
+                    <el-option v-for="item in nademoList" :key="item.id" :label="item.label" :value="item.label"></el-option>
+                </el-select>
+            </el-radio>
+            <el-radio :label="2">勾選框</el-radio>
+            <el-radio :label="3">測試div</el-radio>
+        </el-radio-group>
+        <br>
+        <el-button @click="forMeSeeSee()">看狀況</el-button>
+        <!-- <div id="drawbox-div">
             <div id="drawbox" draggable="true">
                 <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike"/>
             </div>
-        </div>
+        </div> -->
         <!-- <div id="container" @mousemove="Move">放置目標</div> -->
         <div class="tools">
             <bk-button :theme="'default'" type="submit" :title="'基礎按鈕'" @click.stop="prePage" class="mr10"> 上一頁</bk-button>
@@ -42,6 +50,7 @@
             @link-clicked="page = $event"
             style="display: inline-block; width: 80%">
             </pdf>
+            <!-- <input id="new" style="width:100px; height:200px; left:0px; top:0px; position: absolute;z-index:2;"/> -->
         </div>
     </div>
 </template>
@@ -59,20 +68,19 @@
                 pageRotate: 0,
                 loadedRatio: 0,
                 curPageNum: 0,
-                rect:{},
-                label:false,
-                containerbox:{},
+                rect: {},
+                radio: 0,
+                value:'',
+                disabled:false,
+                containerbox: {},
                 firstX: 0,
                 firstY: 0,
                 currX: 0, //開始x
                 currY: 0, //開始y
                 prevX: 0, //結束x
                 prevY: 0, //結束y
-                endX: 0,
-                endY:0,
                 width:0,
                 height:0,
-                lineW: 2,
                 ctx:{},
                 color: "black",
                 drawbox:{},
@@ -84,23 +92,30 @@
                     jsPDF: { unit: 'in', format: 'a4' } //配置選項直接發送到jsPDF
                 },
                 container : '',
+                getcontainer : '',
                 save:'',
-                targetMarkArray:[],
+                targetMarkArray: [],
                 targetMarkIndex: -1,
+                nademoList: [
+                    { id:0, label:'id', disabled: false },
+                    { id:1, label:'name', disabled: false },
+                    { id:2, label:'病歷號', disabled: false }
+                ]
             }
         },
         components: {
             pdf
         },
         mounted() {
-            this.dragover() //拖離監聽
-            this.dragstart() //拖進監聽
+            // this.dragover() //拖離監聽
+            // this.dragstart() //拖進監聽
             this.init() //確認位置
             this.getNumPages()
         },
-        watch: {
-        },
         methods: {
+            forMeSeeSee(){
+                console.log(this.targetMarkArray)
+            },
             dragstart(){
                 this.container = document.querySelector('#container');
                 this.container.addEventListener('drop', this.dropped);
@@ -118,27 +133,27 @@
             },
             canvasOnDraw(){
                 //繪製中
-
+                const getArray = this.targetMarkArray[this.targetMarkIndex]
                 const FinalPointListNow = this.findWhichIsFirstPoint( 
-                    this.targetMarkArray[this.targetMarkIndex].x1 ,
-                    this.targetMarkArray[this.targetMarkIndex].y1 , 
-                    this.targetMarkArray[this.targetMarkIndex].x2 , 
-                    this.targetMarkArray[this.targetMarkIndex].y2 
+                    getArray.x1 ,
+                    getArray.y1 , 
+                    getArray.x2 , 
+                    getArray.y2 
                 );
-                const tmpX1 = FinalPointListNow[0];
-                const tmpY1 = FinalPointListNow[1];
-                const tmpX2 = FinalPointListNow[2];
-                const tmpY2 = FinalPointListNow[3];
+                getArray.tmpX1 = FinalPointListNow[0];
+                getArray.tmpY1 = FinalPointListNow[1];
+                getArray.tmpX2 = FinalPointListNow[2];
+                getArray.tmpY2 = FinalPointListNow[3];
 
-                this.ctx.fillStyle = '#FF6600';
-                this.ctx.fillText( "ㄜ...總之放個提示字" , tmpX1, tmpY1 - 6 );
+                getArray.wid = getArray.tmpX2 - getArray.tmpX1
+                getArray.hei = getArray.tmpY2 - getArray.tmpY1
 
-                this.canvasClearColor(tmpX1 , tmpY1 , tmpX2 - tmpX1 , tmpY2 - tmpY1)
+                // this.ctx.fillStyle = '#FF6600';
+                // this.ctx.fillText( "ㄜ...總之放個提示字" , tmpX1, tmpY1 - 6 );
 
-                if( this.label == true ){
-                    this.canvasBorderColor( '#FF6600' , tmpX1 , tmpY1 , tmpX2 - tmpX1 , tmpY2 - tmpY1 );
-                    this.canvasInnerColor( 'rgba(255, 0, 0, 0.3)' , tmpX1 , tmpY1 , tmpX2 - tmpX1 , tmpY2 - tmpY1 );
-                }
+                this.canvasClearColor( 0 , 0 , 1920 , 1080 )
+                this.canvasBorderColor( '#FF6600' , getArray.tmpX1 , getArray.tmpY1 , getArray.wid , getArray.hei );
+                this.canvasInnerColor( 'rgba(255, 0, 0, 0.3)' , getArray.tmpX1 , getArray.tmpY1 , getArray.wid , getArray.hei );
             },
             findWhichIsFirstPoint( x1 , y1 , x2 , y2 ){
                 //頂角變換
@@ -173,31 +188,54 @@
             },
             Draw(e) {
                 //按下
-                this.drawing = true;
-                if(this.label == true){
-                    console.log(e.layerX , e.layerY)
-                    var data = {
-                        x1 : e.layerX,
-                        y1 : e.layerY,
-                        x2 : 0,
-                        y2 : 0,
-                        wid : 0,
-                        hei : 0,
+                if(this.radio != 0){
+                    this.drawing = true;
+                    if(this.radio == 1 ){
+                        if(this.value == 0){
+                            this.$message({
+                            message: '請選擇一項標籤',
+                            type: 'warning'
+                            });
+                            this.drawing = false;
+                        }else{
+                            label = 'input-' + this.value
+                            this.nademoList = this.nademoList.filter( item => item.label !== this.value )
+                        }
+                    }else if(this.radio == 2){
+                        label = 'checkbox'
                     }
-                    this.targetMarkIndex = this.targetMarkIndex + 1;
-                    this.targetMarkArray.push(data)
+                    else if(this.radio == 3){
+                        label = 'trydiv'
+                    }
+                    if(this.drawing == true){
+                        var label
+                        var data = {
+                            x1 : e.layerX,
+                            y1 : e.layerY,
+                            x2 : 0,
+                            y2 : 0,
+                            sort : label,
+                            //--- 整理過後
+                            tmpX1 : 0,
+                            tmpY1 : 0,
+                            tmpX2 : 0,
+                            tmpY2 : 0,
+                            wid : 0,
+                            hei : 0,
+                        }
+                        this.targetMarkIndex = this.targetMarkIndex + 1;
+                        this.targetMarkArray.push(data)
+                        console.log(this.targetMarkArray[this.targetMarkIndex])
+                    }
                 }
             },
             Move(e){
-                if( this.label == true && this.drawing == true){
-
+                if( this.radio != 0 && this.drawing == true){
                     this.currentX = e.layerX;
                     this.currentY = e.layerY;
                     
                     this.targetMarkArray[this.targetMarkIndex].x2 = this.currentX;
                     this.targetMarkArray[this.targetMarkIndex].y2 = this.currentY;
-                    this.targetMarkArray[this.targetMarkIndex].wid = this.currentX - this.targetMarkArray[this.targetMarkIndex].x1; // 宽度值
-                    this.targetMarkArray[this.targetMarkIndex].hei = this.currentY - this.targetMarkArray[this.targetMarkIndex].y1; // 高度
                     
                     // 执行渲染操作
                     try {
@@ -207,17 +245,56 @@
                     }
                 }
             },
-            Done(e) {
-                if(this.label == true){
-                    console.log('Done')
-                    this.endX = e.clientX - this.rect.left
-                    this.endY = e.clientY - this.rect.top
+            Done() {
+                if(this.radio != 0){
+                    if(this.drawing == true){
+                        if(this.radio == 1){
+                            this.getcontainer = document.getElementById('container');
+                            var input = document.createElement("input");
+                            input.setAttribute("v-model", this.value)
+                            input.setAttribute(
+                                "style",
+                                this.style()
+                            );
+                            input.setAttribute("placeholder", "請輸入內容")
+                            this.getcontainer.append(input)
+                            this.value = ''
+                            console.log(this.nademoList)
+                            if(this.nademoList.length == 0){
+                                this.disabled = true
+                                this.radio = 0
+                            }
+                        }
+                        else if(this.radio == 2){
+                            this.getcontainer = document.getElementById('container');
+                            var checkbox = document.createElement("input");
+                            checkbox.setAttribute("type", "checkbox");
+                            checkbox.setAttribute(
+                                "style",
+                                this.style()
+                            );
+                            this.getcontainer.append(checkbox)
+                        }
+                        // else if(this.radio == 3){
+                        //     this.getcontainer = document.getElementById('container');
+                        //     var p = document.createElement("p");
+                        //     p.setAttribute(
+                        //         "style",
+                        //         this.style()
+                        //         + "background-color: red; "
+                        //     );
+                        //     this.getcontainer.append(p)
+                        // }
+                    }
                     this.drawing = false
-                    // this.ctx.beginPath();
-                    // this.ctx.fillStyle = this.color;
-                    // this.ctx.strokeRect(this.firstX, this.firstY, (this.endX-this.firstX), (this.endY-this.firstY));
-                    // this.ctx.closePath();
                 }
+            },
+            style(){
+                return "width:" + this.targetMarkArray[this.targetMarkIndex].wid+
+                        "px; height:" + this.targetMarkArray[this.targetMarkIndex].hei +
+                        "px; top:" + this.targetMarkArray[this.targetMarkIndex].tmpY1 +
+                        "px; left:" + this.targetMarkArray[this.targetMarkIndex].tmpX1 + 
+                        "px; position:absolute; z-index:2; "
             },
             dragover(){
                 this.drawbox = document.querySelector('#drawbox');

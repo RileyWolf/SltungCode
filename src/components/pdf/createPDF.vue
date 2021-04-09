@@ -168,7 +168,6 @@
                 this.ctx = this.canvas[0].getContext("2d");
                 //返回元素的大小及其相對的位置
                 this.rect = this.canvas[0].getBoundingClientRect()
-                console.log(this.rect)
                 this.width = this.canvas[0].width
                 this.height = this.canvas[0].height
                 // }else{
@@ -181,7 +180,7 @@
             Dot() {
                 this.ctx.beginPath();
                 this.ctx.fillStyle = this.color;
-                // this.ctx.fillRect(this.prevX, this.prevY, this.lineW, this.lineW);
+                this.ctx.fillRect(this.prevX, this.prevY, this.lineW, this.lineW);
                 this.ctx.closePath();
             },
             Paint() {
@@ -207,25 +206,17 @@
             //點下
             Draw(e) {
                 // console.log("Draw")
-                // this.drawing = true
-                this.drawing = false
+                this.drawing = true
                 this.currX = this.prevX
                 this.currY = this.prevY
                 this.prevX = e.clientX - this.rect.left
                 this.prevY = e.clientY - this.rect.top
-                this.firstX = this.prevX
-                this.firstY = this.prevY
                 this.Dot()
             },
             //離開
             Done() {
                 // console.log("Done")
-                
                 this.drawing = false
-                this.ctx.beginPath();
-                this.ctx.fillStyle = this.color;
-                this.ctx.fillRect(this.firstX, this.firstY, (this.prevX-this.firstX), (this.prevY-this.firstY));
-                this.ctx.closePath();
             },
 
         }
