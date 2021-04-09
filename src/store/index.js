@@ -6,7 +6,6 @@ Vue.use(Vuex)
 
 const loginInfo = JSON.parse(window.localStorage.getItem('loginInfo'));
 
-
 const state = {
     loginInfo: loginInfo ? loginInfo : '',
     functionList: [
