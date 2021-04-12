@@ -256,7 +256,7 @@
                                 "style",
                                 this.style()
                             );
-                            input.setAttribute("placeholder", "請輸入內容")
+                            input.setAttribute("placeholder", this.value)
                             this.getcontainer.append(input)
                             this.value = ''
                             console.log(this.nademoList)

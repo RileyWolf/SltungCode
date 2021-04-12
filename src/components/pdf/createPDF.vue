@@ -50,14 +50,13 @@
                         </div>
                         <div class="textarea-div">
                             <textarea class="textarea-format" v-model="projectDescription"></textarea>
-                            <div v-html="compiledMarkdown"></div>
                         </div>
                     </div>
                 </div>
                 <div>
                     <div>手術負責醫師</div>
                     <div>姓名：<input/></div>
-                    <canvas class="canvas" width="300" height="150" style="border: 1px solid #243146;" @mousemove="Move" @mousedown="Draw" @mouseup="Done"></canvas>
+                    <canvas id="canvas" width="300" height="150" style="border: 1px solid #243146;" @mousemove="Move" @mousedown="Draw" @mouseup="Done"></canvas>
                     <div>專科別：</div>
                     <div>（※衛生福利部授予之專科醫師證書科別；若無則免填</div>
                     
@@ -89,7 +88,8 @@
         data() { 
             return {
                 doc : {},
-                canvas : {},    
+                canvas : {},
+                projectDescription:'',
                 ctx : {},
                 prevX : 0, //滑鼠當下
                 prevY : 0,
@@ -100,6 +100,7 @@
                 color: "black",
                 lineW: 2,   
                 rect:{},
+                isview: false,
                 input:'',
                 time:'',
                 firstX: 0,
@@ -151,10 +152,11 @@
             async printScreen()
             {
                 var element = document.getElementById('content');
+                console.log(element)
                 html2pdf().from(element).save();
             },
             printJS(){
-                var image = this.canvas[0].toDataURL("image/png");
+                var image = this.canvas.toDataURL("image/png");
                 this.doc.addImage(image, 'JPEG', 0, 0, this.width, this.height);
                 console.log(123)
                 this.doc.save('test.pdf');
@@ -162,14 +164,15 @@
             },
             init() {
                 //取得所有class為canvas的元素
-                this.canvas = document.getElementsByClassName('canvas');
+                this.canvas = document.getElementById('canvas');
+                console.log(this.canvas)
                 //渲染環境為2D,判定有無資源<canvas>
-                // if(this.canvas[0]){
-                this.ctx = this.canvas[0].getContext("2d");
+                // if(this.canvas){
+                this.ctx = this.canvas.getContext("2d");
                 //返回元素的大小及其相對的位置
-                this.rect = this.canvas[0].getBoundingClientRect()
-                this.width = this.canvas[0].width
-                this.height = this.canvas[0].height
+                this.rect = this.canvas.getBoundingClientRect()
+                this.width = this.canvas.width
+                this.height = this.canvas.height
                 // }else{
                 //     this.$message({
                 //         message: '警告，版本不資源canvas',
